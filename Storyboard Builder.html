@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storyboard Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>.topbar .btn-plain{font-size:20px;}</style>
+</head>
+<body>
+
+<!-- LIST VIEW -->
+<main id="view-list" class="view">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="index.html" class="btn-plain" title="Back to site" style="text-decoration:none;">&larr;</a>
+      <h1 class="app-title">Storyboards</h1>
+    </div>
+    <div class="topbar-actions">
+      <button id="import-btn" class="btn btn-outline">Import</button>
+      <button id="new-storyboard-btn" class="btn btn-accent">+ New storyboard</button>
+    </div>
+  </header>
+  <div id="storyboard-grid" class="storyboard-grid"></div>
+  <div id="empty-state" class="empty-state" hidden>
+    <p>No storyboards yet.</p>
+    <button id="empty-new-btn" class="btn btn-accent">+ New storyboard</button>
+  </div>
+</main>
+
+<!-- EDITOR VIEW -->
+<main id="view-editor" class="view" hidden>
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="back-btn" class="btn btn-plain" title="Back to storyboards" aria-label="Back to storyboards">&larr;</button>
+      <h1 id="storyboard-title" class="app-title editable-title" contenteditable="true" spellcheck="false"></h1>
+    </div>
+    <div class="topbar-actions">
+      <button id="download-btn" class="btn btn-outline" title="Save this storyboard as a file you can share and re-import">Download storyboard</button>
+      <button id="export-btn" class="btn btn-accent">Export to PDF</button>
+    </div>
+  </header>
+
+  <div id="panel-grid" class="panel-grid"></div>
+
+  <div class="add-panel-row">
+    <button id="add-panel-btn" class="btn btn-outline">+ Add panel</button>
+  </div>
+</main>
+
+<!-- PRINT ROOT: populated dynamically before printing, only visible in @media print -->
+<div id="print-root"></div>
+
+<!-- hidden file input reused for image uploads -->
+<input type="file" id="file-input" accept="image/*" hidden>
+
+<!-- hidden file input for importing a storyboard .json file -->
+<input type="file" id="import-file-input" accept="application/json,.json" hidden>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

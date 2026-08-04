@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;1,400&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  select, input, textarea, button { font-family: 'Spline Sans Mono', monospace; }
+  input[type="checkbox"] { accent-color: #002FA7; }
+  ::selection { background: #E5231B; color: #F1EDE3; }
+</style>
+</helmet>
+
+<div style="background:#F1EDE3; min-height:100vh; font-family:'Spline Sans Mono', monospace; color:#002FA7;">
+
+  <!-- top bar -->
+  <header style="background:#F1EDE3; border-bottom:1px solid #e5e7eb;">
+    <div style="max-width:1120px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:18px;">
+        <a href="index.html" style="font-size:13px; color:#002FA7; text-decoration:none; font-weight:500;" style-hover="text-decoration:underline;">← Denny Ryan</a>
+        <h1 style="font-size:16px; font-weight:600; margin:0; color:#002FA7;">Production Quote Builder</h1>
+      </div>
+      <nav style="display:flex; gap:4px;">
+        <button onClick="{{ goBuilder }}" style="padding:8px 16px; font-size:13px; font-weight:500; border:none; border-radius:0; cursor:pointer; background:{{ tabBuilderBg }}; color:{{ tabBuilderColor }};">New Quote</button>
+        <button onClick="{{ goHistory }}" style="padding:8px 16px; font-size:13px; font-weight:500; border:none; border-radius:0; cursor:pointer; background:{{ tabHistoryBg }}; color:{{ tabHistoryColor }};">History</button>
+        <button onClick="{{ goCatalogue }}" style="padding:8px 16px; font-size:13px; font-weight:500; border:none; border-radius:0; cursor:pointer; background:{{ tabCatalogueBg }}; color:{{ tabCatalogueColor }};">Catalogue</button>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width:1120px; margin:0 auto; padding:24px 20px 60px; display:flex; flex-direction:column; gap:20px;">
+
+    <!-- ================= BUILDER VIEW ================= -->
+    <sc-if value="{{ isBuilder }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <!-- header fields -->
+        <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; padding:16px;">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Client</label>
+              <input value="{{ clientName }}" onChange="{{ setClientName }}" placeholder="Client name" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Project</label>
+              <input value="{{ projectName }}" onChange="{{ setProjectName }}" placeholder="Project name" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Quote Ref</label>
+              <input value="{{ quoteRef }}" onChange="{{ setQuoteRef }}" placeholder="e.g. Q-001" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Date</label>
+              <input type="date" value="{{ quoteDate }}" onChange="{{ setQuoteDate }}" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- presets + add item -->
+        <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; padding:16px; display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:6px;">Load preset</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <sc-for list="{{ presets }}" as="p" hint-placeholder-count="5">
+                <button onClick="{{ p.load }}" style="padding:6px 14px; font-size:12px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; cursor:pointer;" style-hover="background:rgba(0,47,167,0.08);">{{ p.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap;">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Category</label>
+              <select value="{{ selectedCategory }}" onChange="{{ setSelectedCategory }}" style="border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;">
+                <sc-for list="{{ categoryOptions }}" as="c" hint-placeholder-count="7">
+                  <option value="{{ c.value }}">{{ c.label }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <div style="flex:1; min-width:220px;">
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Item</label>
+              <select value="{{ selectedItemId }}" onChange="{{ setSelectedItemId }}" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;">
+                <option value="">Select item…</option>
+                <sc-for list="{{ filteredItems }}" as="item" hint-placeholder-count="4">
+                  <option value="{{ item.id }}">{{ item.optLabel }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <button onClick="{{ addItem }}" disabled="{{ addDisabled }}" style="padding:8px 18px; font-size:13px; background:#002FA7; color:#F1EDE3; border:none; border-radius:0; cursor:pointer; opacity:{{ addOpacity }};">Add</button>
+            <button onClick="{{ addCustomRow }}" style="padding:8px 18px; font-size:13px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; cursor:pointer;" style-hover="background:#F1EDE3;">+ Custom row</button>
+          </div>
+        </div>
+
+        <!-- line items table -->
+        <sc-if value="{{ hasLineItems }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; overflow:hidden;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <thead>
+                <tr style="background:#F1EDE3; text-align:left; font-size:11px; font-weight:600; color:rgba(0,47,167,0.55); text-transform:uppercase; letter-spacing:0.04em;">
+                  <th style="padding:8px 12px;">Category</th>
+                  <th style="padding:8px 12px;">Item</th>
+                  <th style="padding:8px 12px; width:90px;">Rate</th>
+                  <th style="padding:8px 12px; width:64px;">Unit</th>
+                  <th style="padding:8px 12px; width:70px;">Qty</th>
+                  <th style="padding:8px 12px; width:70px;">Days</th>
+                  <th style="padding:8px 12px; width:110px; text-align:right;">Line Total</th>
+                  <th style="padding:8px 12px; width:36px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ lineItems }}" as="li" hint-placeholder-count="3">
+                  <tr style="border-top:1px solid rgba(0,47,167,0.15);">
+                    <td style="padding:8px 12px;"><span style="display:inline-block; font-size:11px; padding:2px 8px; border-radius:0; background:{{ li.pillBg }}; color:{{ li.pillColor }};">{{ li.category }}</span></td>
+                    <td style="padding:8px 12px;">
+                      <sc-if value="{{ li.isCustom }}" hint-placeholder-val="{{ false }}">
+                        <input value="{{ li.name }}" onChange="{{ li.setName }}" placeholder="Custom item" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:5px 8px; font-size:13px;" />
+                      </sc-if>
+                      <sc-if value="{{ li.isNotCustom }}" hint-placeholder-val="{{ true }}">
+                        <span>{{ li.name }}</span>
+                      </sc-if>
+                    </td>
+                    <td style="padding:8px 12px;">
+                      <sc-if value="{{ li.isCustom }}" hint-placeholder-val="{{ false }}">
+                        <input type="number" value="{{ li.rate }}" onChange="{{ li.setRate }}" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:5px 8px; font-size:13px;" />
+                      </sc-if>
+                      <sc-if value="{{ li.isNotCustom }}" hint-placeholder-val="{{ true }}">
+                        <span>{{ li.rateFormatted }}</span>
+                      </sc-if>
+                    </td>
+                    <td style="padding:8px 12px;">
+                      <sc-if value="{{ li.isCustom }}" hint-placeholder-val="{{ false }}">
+                        <select value="{{ li.unit }}" onChange="{{ li.setUnit }}" style="border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:5px 6px; font-size:13px;">
+                          <option value="day">day</option>
+                          <option value="hour">hour</option>
+                        </select>
+                      </sc-if>
+                      <sc-if value="{{ li.isNotCustom }}" hint-placeholder-val="{{ true }}">
+                        <span>{{ li.unit }}</span>
+                      </sc-if>
+                    </td>
+                    <td style="padding:8px 12px;">
+                      <input type="number" min="0" value="{{ li.qty }}" onChange="{{ li.setQty }}" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:5px 8px; font-size:13px;" />
+                    </td>
+                    <td style="padding:8px 12px;">
+                      <sc-if value="{{ li.isHour }}" hint-placeholder-val="{{ false }}">
+                        <span style="color:rgba(0,47,167,0.45);">—</span>
+                      </sc-if>
+                      <sc-if value="{{ li.isNotHour }}" hint-placeholder-val="{{ true }}">
+                        <input type="number" min="0" value="{{ li.days }}" onChange="{{ li.setDays }}" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:5px 8px; font-size:13px;" />
+                      </sc-if>
+                    </td>
+                    <td style="padding:8px 12px; text-align:right; font-weight:600;">{{ li.lineTotalFormatted }}</td>
+                    <td style="padding:8px 12px; text-align:center;">
+                      <button onClick="{{ li.remove }}" style="background:none; border:none; color:rgba(0,47,167,0.45); font-size:16px; cursor:pointer; line-height:1;" style-hover="color:#E5231B;">&times;</button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </sc-if>
+
+        <!-- bottom controls + totals -->
+        <div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+          <div style="flex:1; min-width:280px; display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap;">
+              <div>
+                <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Day-rate multiplier</label>
+                <select value="{{ dayMultiplier }}" onChange="{{ setDayMultiplier }}" style="border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:7px 10px; font-size:13px;">
+                  <option value="1">1 day (full rate)</option>
+                  <option value="0.9">2 days (-10%)</option>
+                  <option value="0.8">3-4 days (-20%)</option>
+                  <option value="0.65">Week 5+ days (-35%)</option>
+                </select>
+              </div>
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#002FA7; padding-bottom:8px; cursor:pointer;">
+                <input type="checkbox" checked="{{ gstEnabled }}" onChange="{{ setGstEnabled }}" />
+                Include GST (10%)
+              </label>
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:500; color:rgba(0,47,167,0.55); margin-bottom:4px;">Notes</label>
+              <textarea rows="3" value="{{ notes }}" onChange="{{ setNotes }}" placeholder="Additional notes…" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:8px 10px; font-size:13px; resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button onClick="{{ saveQuote }}" style="padding:9px 18px; font-size:13px; background:#002FA7; color:#F1EDE3; border:none; border-radius:0; cursor:pointer;" style-hover="background:#E5231B;">{{ saveLabel }}</button>
+              <sc-if value="{{ hasSavedId }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ duplicateQuote }}" style="padding:9px 18px; font-size:13px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; cursor:pointer;" style-hover="background:#F1EDE3;">Duplicate</button>
+                <button onClick="{{ exportPdf }}" style="padding:9px 18px; font-size:13px; border:1px solid #002FA7; color:#002FA7; border-radius:0; background:#F1EDE3; cursor:pointer;" style-hover="background:rgba(229,35,27,0.08);">Export to PDF</button>
+              </sc-if>
+            </div>
+          </div>
+
+          <sc-if value="{{ hasLineItems }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; padding:16px; min-width:280px;">
+              <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0; color:rgba(0,47,167,0.55);"><span>Full rate subtotal</span><span>{{ totals.fullSubtotalFormatted }}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0; color:rgba(0,47,167,0.7);"><span>Multi-day discount ({{ totals.discountPct }}%)</span><span>−{{ totals.discountFormatted }}</span></div>
+              </sc-if>
+              <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0; color:rgba(0,47,167,0.55);"><span>Subtotal</span><span>{{ totals.subtotalFormatted }}</span></div>
+              <sc-if value="{{ hasGst }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0; color:rgba(0,47,167,0.55);"><span>GST (10%)</span><span>{{ totals.gstFormatted }}</span></div>
+              </sc-if>
+              <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:700; padding-top:8px; margin-top:8px; border-top:1px solid rgba(0,47,167,0.35);"><span>Total</span><span>{{ totals.totalFormatted }}</span></div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= HISTORY VIEW ================= -->
+    <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; overflow:hidden;">
+        <sc-if value="{{ hasQuotes }}" hint-placeholder-val="{{ true }}">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#F1EDE3; text-align:left; font-size:11px; font-weight:600; color:rgba(0,47,167,0.55); text-transform:uppercase;">
+                <th style="padding:10px 14px;">Client</th>
+                <th style="padding:10px 14px;">Project</th>
+                <th style="padding:10px 14px;">Ref</th>
+                <th style="padding:10px 14px;">Date</th>
+                <th style="padding:10px 14px; text-align:right;">Total</th>
+                <th style="padding:10px 14px; width:180px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ historyRows }}" as="q" hint-placeholder-count="3">
+                <tr style="border-top:1px solid rgba(0,47,167,0.15);">
+                  <td style="padding:10px 14px;">{{ q.client_name }}</td>
+                  <td style="padding:10px 14px;">{{ q.project_name }}</td>
+                  <td style="padding:10px 14px;">{{ q.quote_ref }}</td>
+                  <td style="padding:10px 14px;">{{ q.quote_date }}</td>
+                  <td style="padding:10px 14px; text-align:right; font-weight:600;">{{ q.totalFormatted }}</td>
+                  <td style="padding:10px 14px; text-align:right;">
+                    <button onClick="{{ q.open }}" style="font-size:12px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; padding:5px 10px; cursor:pointer; margin-right:6px;">Open</button>
+                    <button onClick="{{ q.remove }}" style="font-size:12px; border:none; background:none; color:rgba(0,47,167,0.45); cursor:pointer;" style-hover="color:#E5231B;">Delete</button>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </sc-if>
+        <sc-if value="{{ hasNoQuotes }}" hint-placeholder-val="{{ false }}">
+          <p style="padding:40px; text-align:center; color:rgba(0,47,167,0.55); font-size:13px;">No saved quotes yet.</p>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ================= CATALOGUE VIEW ================= -->
+    <sc-if value="{{ isCatalogue }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; padding:16px;">
+          <h2 style="font-size:13px; font-weight:600; margin:0 0 12px;">Letterhead details</h2>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+            <div>
+              <label style="display:block; font-size:11px; color:rgba(0,47,167,0.55); margin-bottom:4px;">Business name</label>
+              <input value="{{ business.name }}" onChange="{{ setBusinessName }}" placeholder="Denny Ryan Film" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:6px 8px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:rgba(0,47,167,0.55); margin-bottom:4px;">ABN</label>
+              <input value="{{ business.abn }}" onChange="{{ setBusinessAbn }}" placeholder="ABN" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:6px 8px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:rgba(0,47,167,0.55); margin-bottom:4px;">Email</label>
+              <input value="{{ business.email }}" onChange="{{ setBusinessEmail }}" placeholder="hello@dennyryan.com.au" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:6px 8px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:rgba(0,47,167,0.55); margin-bottom:4px;">Phone</label>
+              <input value="{{ business.phone }}" onChange="{{ setBusinessPhone }}" placeholder="Phone" style="width:100%; border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:6px 8px; font-size:13px;" />
+            </div>
+          </div>
+        </div>
+
+        <sc-for list="{{ catalogueGroups }}" as="grp" hint-placeholder-count="7">
+          <div style="background:#F1EDE3; border:1px solid #e5e7eb; border-radius:0; overflow:hidden;">
+            <div style="padding:10px 14px; background:#F1EDE3; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:{{ grp.color }};">{{ grp.label }}</span>
+              <button onClick="{{ grp.addItem }}" style="font-size:12px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; padding:5px 10px; cursor:pointer;">+ Add item</button>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <tbody>
+                <sc-for list="{{ grp.items }}" as="item" hint-placeholder-count="4">
+                  <tr style="border-top:1px solid rgba(0,47,167,0.15); opacity:{{ item.rowOpacity }};">
+                    <td style="padding:6px 14px;"><input value="{{ item.name }}" onChange="{{ item.setName }}" style="width:100%; border:1px solid transparent; border-radius:0; padding:4px 6px; font-size:13px;" style-hover="border-color:rgba(0,47,167,0.35);" style-focus="border-color:#002FA7; background:#F1EDE3;" /></td>
+                    <td style="padding:6px 14px; width:110px;"><input type="number" value="{{ item.rate }}" onChange="{{ item.setRate }}" style="width:100%; border:1px solid transparent; border-radius:0; padding:4px 6px; font-size:13px;" style-hover="border-color:rgba(0,47,167,0.35);" style-focus="border-color:#002FA7; background:#F1EDE3;" /></td>
+                    <td style="padding:6px 14px; width:90px;">
+                      <select value="{{ item.unit }}" onChange="{{ item.setUnit }}" style="border:1px solid rgba(0,47,167,0.35); border-radius:0; padding:4px 6px; font-size:13px;">
+                        <option value="day">day</option>
+                        <option value="hour">hour</option>
+                      </select>
+                    </td>
+                    <td style="padding:6px 14px; width:130px; text-align:right;">
+                      <button onClick="{{ item.toggleActive }}" style="font-size:12px; border:1px solid rgba(0,47,167,0.35); border-radius:0; background:#F1EDE3; padding:4px 10px; cursor:pointer; margin-right:6px;">{{ item.toggleLabel }}</button>
+                      <button onClick="{{ item.remove }}" style="font-size:14px; border:none; background:none; color:rgba(0,47,167,0.45); cursor:pointer;" style-hover="color:#E5231B;">&times;</button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CATEGORY_ORDER = ['crew','camera','lens','audio','lighting','grip','post'];
+const CATEGORY_COLORS = {
+  crew:['rgba(0,47,167,0.1)','#002FA7'], camera:['rgba(0,47,167,0.1)','#002FA7'], lens:['rgba(0,47,167,0.1)','#002FA7'],
+  audio:['rgba(0,47,167,0.1)','#002FA7'], lighting:['rgba(0,47,167,0.1)','#002FA7'], grip:['rgba(0,47,167,0.1)','#002FA7'],
+  post:['rgba(0,47,167,0.1)','#002FA7'], custom:['rgba(229,35,27,0.1)','#E5231B'],
+};
+const CATALOGUE_SEED = {
+  crew:[['Videographer / DP',900,'day'],['Camera operator (2nd)',750,'day'],['Director',1100,'day'],['Producer',900,'day'],['Sound recordist',800,'day'],['Gaffer / lighting tech',700,'day'],['Grip',600,'day'],['PA / runner',350,'day'],['Video editor',50,'hour'],['Colourist',120,'hour'],['Motion graphics artist',110,'hour'],['DIT (digital imaging tech)',650,'day']],
+  camera:[['BMPCC 4K',100,'day'],['BMPCC 6K Pro',150,'day'],['Sony FX3 (full-frame)',200,'day'],['Sony FX6 (full-frame)',299,'day'],['Sony FX9 (full-frame)',400,'day'],['Canon EOS C70',200,'day'],['Canon EOS C300 Mk III',350,'day'],['RED Komodo 6K',350,'day'],['RED DSMC2 MONSTRO 8K',600,'day'],['ARRI Alexa Mini LF',900,'day'],['DJI Ronin 4D (6K)',500,'day'],['GoPro Hero 13',60,'day'],['Insta360 X4',50,'day']],
+  lens:[['Canon EF 24-70mm f/2.8L II',70,'day'],['Canon EF 70-200mm f/2.8L III',80,'day'],['Canon EF 16-35mm f/2.8L III',80,'day'],['Canon EF 50mm f/1.2L',60,'day'],['Canon EF 85mm f/1.4L',60,'day'],['Canon RF 24-70mm f/2.8L IS',80,'day'],['Canon RF 70-200mm f/2.8L IS',90,'day'],['Canon RF 15-35mm f/2.8L IS',80,'day'],['Sony FE 24-70mm f/2.8 GM',70,'day'],['Sony FE 70-200mm f/2.8 GM II',99,'day'],['Sony FE 16-35mm f/2.8 GM II',79,'day'],['Sony FE 50mm f/1.2 GM',79,'day'],['Sony FE 85mm f/1.4 GM',78,'day'],['Sigma 18-35mm f/1.8 Art (EF)',45,'day'],['Sigma 24-70mm f/2.8 DG DN Art',60,'day'],['Metabones EF–E Speed Booster',30,'day']],
+  audio:[['Rode NTG3 shotgun mic',40,'day'],['Rode NTG4+ shotgun mic',30,'day'],['Rode VideoMic NTG (on-cam)',20,'day'],['Rode Wireless GO II (dual)',45,'day'],['Sennheiser EW112-p G4 lav kit',30,'day'],['Sennheiser EW135-p G4 handheld',30,'day'],['DJI Mic 2 (dual wireless)',30,'day'],['Sound Devices MixPre-6 II',80,'day'],['Zoom F6 multitrack recorder',50,'day'],['Zoom H6 handy recorder',35,'day'],['Boom pole (Rode mini)',10,'day'],['Rode Blimp windshield kit',25,'day'],['NTG4+ boom kit (pole+blimp)',50,'day']],
+  lighting:[['Aputure LS 120D II (daylight)',58,'day'],['Aputure LS 300X (bi-colour)',80,'day'],['Aputure LS 600D Pro (daylight)',140,'day'],['Aputure LS 60X (bi-colour)',50,'day'],['Aputure Amaran F22X (2x2 flex)',60,'day'],['Aputure Amaran F22C (2x2 RGB)',60,'day'],['Aputure Amaran F21C (2x1 RGB)',50,'day'],['Aputure Amaran 300C (RGB)',68,'day'],['Aputure Nova P300c (RGBWW)',100,'day'],['Aputure Storm 80C (3-head kit)',160,'day'],['Aputure Light Dome II softbox',20,'day'],['Aputure Fresnel 2X attachment',10,'day'],['Nanlite PavoTube II 30X (x2)',60,'day'],['Godox AD600 Pro (strobe)',70,'day'],['5-in-1 reflector',10,'day'],['V-mount battery + charger',40,'day'],['Light stand (per stand)',10,'day'],['C-stand',15,'day']],
+  grip:[['DJI RS 4 Pro gimbal',100,'day'],['DJI RS 3 Pro gimbal',70,'day'],['DJI RS 5 gimbal',90,'day'],['Sachtler Ace XL fluid head tripod',35,'day'],['Manfrotto 504X video tripod',25,'day'],['Dana Dolly + track kit',120,'day'],['Slider (60cm)',40,'day'],['Slider (100cm)',60,'day'],['Shoulder rig kit',40,'day'],['Follow focus unit',30,'day'],['Matte box',25,'day'],['Monitor (5-7in, on-cam)',40,'day'],["Monitor (17in director's)",80,'day'],['V-lock plate + baseplate',20,'day'],['Easyrig Minimax',85,'day']],
+  post:[['DaVinci Resolve edit suite',100,'day'],['Avid Media Composer suite',150,'day'],['Adobe Premiere edit suite',100,'day'],['Colour grading suite (full)',350,'day'],['SSD media (1TB)',20,'day'],['CFexpress card (160GB)',25,'day'],['SD card UHS-II (256GB)',15,'day']],
+};
+const PRESET_SEED = [
+  { key:'interview', label:'Interview / talking head', items:[['crew',0,1,1],['crew',8,4,1],['camera',2,1,1],['lens',13,1,1],['audio',4,1,1],['audio',0,1,1],['lighting',0,2,1],['lighting',10,1,1],['grip',5,1,1]] },
+  { key:'rungun', label:'Run & gun / doco', items:[['crew',0,1,1],['crew',8,3,1],['camera',3,1,1],['lens',6,1,1],['lens',0,1,1],['audio',3,1,1],['audio',0,1,1],['lighting',5,1,1],['grip',0,1,1],['grip',5,1,1]] },
+  { key:'corporate', label:'Corporate promo', items:[['crew',0,1,1],['crew',2,1,1],['crew',8,6,1],['camera',3,1,1],['camera',2,1,1],['lens',0,1,1],['lens',1,1,1],['audio',4,2,1],['audio',6,1,1],['lighting',2,1,1],['lighting',1,2,1],['lighting',10,2,1],['grip',5,1,1],['grip',4,1,1],['post',0,1,1]] },
+  { key:'narrative', label:'Narrative / short film day', items:[['crew',0,1,1],['crew',1,1,1],['crew',2,1,1],['crew',4,1,1],['crew',5,1,1],['crew',11,1,1],['camera',5,1,1],['lens',0,1,1],['lens',2,1,1],['lens',4,1,1],['audio',6,1,1],['audio',0,1,1],['audio',10,1,1],['lighting',2,1,1],['lighting',1,2,1],['lighting',13,2,1],['grip',2,1,1],['grip',5,1,1],['grip',7,1,1],['post',0,1,1]] },
+  { key:'event', label:'Event / multi-cam', items:[['crew',0,1,1],['crew',1,2,1],['crew',3,1,1],['crew',4,1,1],['camera',3,2,1],['camera',1,1,1],['lens',8,1,1],['lens',9,1,1],['audio',5,2,1],['audio',6,1,1],['lighting',3,4,1],['grip',5,3,1],['grip',11,1,1],['post',0,1,1]] },
+];
+const DAY_LABELS = { '1':'1 day (full rate)', '0.9':'2 days (-10%)', '0.8':'3-4 days (-20%)', '0.65':'Week 5+ days (-35%)' };
+
+function fmt(n){ return '$' + (Math.round((n||0)*100)/100).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+class Component extends DCLogic {
+  state = {
+    view: 'builder',
+    catalogue: [], quotes: [], business: { name:'', abn:'', email:'', phone:'' },
+    clientName:'', projectName:'', quoteRef:'', quoteDate: new Date().toISOString().slice(0,10),
+    dayMultiplier: 1, gstEnabled: true, notes:'', lineItems: [], savedId: null,
+    selectedCategory: 'crew', selectedItemId: '',
+  };
+
+  componentDidMount() {
+    let cat = this.loadLS('qb-catalogue');
+    if (!cat) {
+      cat = [];
+      let id = 1;
+      CATEGORY_ORDER.forEach(c => CATALOGUE_SEED[c].forEach(([name,rate,unit]) => cat.push({ id: id++, category: c, name, rate, unit, active: 1 })));
+    }
+    let quotes = this.loadLS('qb-quotes') || [];
+    let business = this.loadLS('qb-business') || { name:'', abn:'', email:'', phone:'' };
+    this.setState({ catalogue: cat, quotes, business });
+  }
+
+  loadLS(key) { try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; } }
+  saveLS(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+
+  persistCatalogue(cat) { this.setState({ catalogue: cat }); this.saveLS('qb-catalogue', cat); }
+  persistQuotes(q) { this.setState({ quotes: q }); this.saveLS('qb-quotes', q); }
+  persistBusiness(b) { this.setState({ business: b }); this.saveLS('qb-business', b); }
+
+  presetsResolved() {
+    const cat = this.state.catalogue;
+    return PRESET_SEED.map(p => ({
+      key: p.key, label: p.label,
+      items: p.items.map(([category, idx, qty, days]) => {
+        const inCat = cat.filter(c => c.category === category);
+        const src = inCat[idx];
+        if (!src) return null;
+        return { catalogue_id: src.id, name: src.name, category: src.category, rate: src.rate, unit: src.unit, qty, days };
+      }).filter(Boolean),
+    }));
+  }
+
+  addItem() {
+    const item = this.state.catalogue.find(c => c.id === Number(this.state.selectedItemId));
+    if (!item) return;
+    this.setState(s => ({ lineItems: [...s.lineItems, { key: Date.now(), catalogue_id: item.id, name: item.name, category: item.category, rate: item.rate, unit: item.unit, qty: 1, days: 1 }], selectedItemId: '' }));
+  }
+  addCustomRow() {
+    this.setState(s => ({ lineItems: [...s.lineItems, { key: Date.now(), catalogue_id: null, name: '', category: 'custom', rate: 0, unit: 'day', qty: 1, days: 1 }] }));
+  }
+  updateLine(key, field, value) {
+    this.setState(s => ({ lineItems: s.lineItems.map(li => li.key === key ? { ...li, [field]: value } : li) }));
+  }
+  removeLine(key) { this.setState(s => ({ lineItems: s.lineItems.filter(li => li.key !== key) })); }
+  loadPreset(items) {
+    this.setState({ lineItems: items.map((it, i) => ({ key: Date.now() + i, ...it })) });
+  }
+
+  lineTotal(item, dm) { return item.unit === 'hour' ? item.rate * item.qty : item.rate * dm * item.qty * (item.days || 1); }
+  fullLineTotal(item) { return item.unit === 'hour' ? item.rate * item.qty : item.rate * item.qty * (item.days || 1); }
+  calcTotals(lineItems, dm, gstOn) {
+    const subtotal = lineItems.reduce((s, i) => s + this.lineTotal(i, dm), 0);
+    const fullSubtotal = lineItems.reduce((s, i) => s + this.fullLineTotal(i), 0);
+    const discount = fullSubtotal - subtotal;
+    const gst = gstOn ? subtotal * 0.1 : 0;
+    const total = subtotal + gst;
+    return { subtotal, fullSubtotal, discount, gst, total };
+  }
+
+  saveQuote() {
+    const s = this.state;
+    const totals = this.calcTotals(s.lineItems, s.dayMultiplier, s.gstEnabled);
+    const payload = {
+      id: s.savedId || Date.now(),
+      client_name: s.clientName, project_name: s.projectName, quote_ref: s.quoteRef, quote_date: s.quoteDate,
+      day_multiplier: s.dayMultiplier, gst_enabled: s.gstEnabled, notes: s.notes, lineItems: s.lineItems,
+      total: totals.total, updated_at: new Date().toISOString(),
+    };
+    let quotes = s.quotes.slice();
+    const idx = quotes.findIndex(q => q.id === payload.id);
+    if (idx >= 0) quotes[idx] = { ...quotes[idx], ...payload };
+    else { payload.created_at = payload.updated_at; quotes = [payload, ...quotes]; }
+    this.persistQuotes(quotes);
+    this.setState({ savedId: payload.id });
+  }
+  duplicateQuote() { this.setState({ savedId: null, quoteRef: '' }); }
+  openQuote(q) {
+    this.setState({
+      view: 'builder', savedId: q.id, clientName: q.client_name, projectName: q.project_name,
+      quoteRef: q.quote_ref, quoteDate: q.quote_date, dayMultiplier: q.day_multiplier, gstEnabled: q.gst_enabled,
+      notes: q.notes, lineItems: q.lineItems.map((li, i) => ({ ...li, key: Date.now() + i })),
+    });
+  }
+  deleteQuote(id) {
+    if (!confirm('Delete this quote?')) return;
+    this.persistQuotes(this.state.quotes.filter(q => q.id !== id));
+  }
+
+  exportPdf() {
+    const s = this.state;
+    const totals = this.calcTotals(s.lineItems, s.dayMultiplier, s.gstEnabled);
+    const b = s.business;
+    const rows = s.lineItems.map(li => `<tr>
+      <td style="padding:6px 10px;border-bottom:1px solid rgba(0,47,167,0.22);">${li.name || '—'}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid rgba(0,47,167,0.22);">${fmt(li.rate)}/${li.unit}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid rgba(0,47,167,0.22);">${li.qty}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid rgba(0,47,167,0.22);">${li.unit === 'hour' ? '—' : li.days}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid rgba(0,47,167,0.22);text-align:right;">${fmt(this.lineTotal(li, s.dayMultiplier))}</td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Quote ${s.quoteRef || ''}</title></head>
+    <body style="font-family:'Newsreader',Georgia,serif;color:#002FA7;max-width:760px;margin:40px auto;background:#F1EDE3;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #002FA7;padding-bottom:16px;margin-bottom:24px;">
+        <div><h1 style="font-size:20px;margin:0 0 4px;">${b.name || 'Business name'}</h1>
+        <p style="font-size:12px;color:rgba(0,47,167,0.55);margin:0;">${b.abn ? 'ABN ' + b.abn : ''} ${b.email || ''} ${b.phone || ''}</p></div>
+        <div style="text-align:right;font-size:12px;color:rgba(0,47,167,0.55);"><div>Quote ${s.quoteRef || ''}</div><div>${s.quoteDate}</div></div>
+      </div>
+      <p style="font-size:13px;"><strong>Client:</strong> ${s.clientName || '—'}<br><strong>Project:</strong> ${s.projectName || '—'}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:16px;">
+        <thead><tr style="background:rgba(0,47,167,0.06);text-align:left;font-size:11px;text-transform:uppercase;font-family:'Spline Sans Mono',monospace;color:rgba(0,47,167,0.55);">
+          <th style="padding:6px 10px;">Item</th><th style="padding:6px 10px;">Rate</th><th style="padding:6px 10px;">Qty</th><th style="padding:6px 10px;">Days</th><th style="padding:6px 10px;text-align:right;">Total</th>
+        </tr></thead><tbody>${rows}</tbody>
+      </table>
+      <div style="max-width:280px;margin-left:auto;margin-top:16px;font-size:13px;">
+        <div style="display:flex;justify-content:space-between;padding:2px 0;color:rgba(0,47,167,0.55);"><span>Subtotal</span><span>${fmt(totals.subtotal)}</span></div>
+        ${s.gstEnabled ? `<div style="display:flex;justify-content:space-between;padding:2px 0;color:rgba(0,47,167,0.55);"><span>GST (10%)</span><span>${fmt(totals.gst)}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;padding-top:8px;margin-top:8px;border-top:1px solid rgba(0,47,167,0.35);"><span>Total</span><span>${fmt(totals.total)}</span></div>
+      </div>
+      ${s.notes ? `<p style="font-size:12px;color:rgba(0,47,167,0.55);margin-top:24px;"><strong>Notes:</strong> ${s.notes}</p>` : ''}
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 300);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const catActive = s.catalogue.filter(c => c.active);
+    const filteredItems = catActive.filter(c => c.category === s.selectedCategory).map(c => ({ id: c.id, optLabel: c.name + ' — ' + fmt(c.rate) + '/' + c.unit }));
+
+    const lineItems = s.lineItems.map(li => {
+      const isCustom = !li.catalogue_id;
+      const [pillBg, pillColor] = CATEGORY_COLORS[li.category] || CATEGORY_COLORS.custom;
+      return {
+        ...li, isCustom, isNotCustom: !isCustom, isHour: li.unit === 'hour', isNotHour: li.unit !== 'hour',
+        pillBg, pillColor, rateFormatted: fmt(li.rate), lineTotalFormatted: fmt(this.lineTotal(li, s.dayMultiplier)),
+        setName: (e) => this.updateLine(li.key, 'name', e.target.value),
+        setRate: (e) => this.updateLine(li.key, 'rate', Number(e.target.value)),
+        setUnit: (e) => this.updateLine(li.key, 'unit', e.target.value),
+        setQty: (e) => this.updateLine(li.key, 'qty', Number(e.target.value)),
+        setDays: (e) => this.updateLine(li.key, 'days', Number(e.target.value)),
+        remove: () => this.removeLine(li.key),
+      };
+    });
+
+    const totalsRaw = this.calcTotals(s.lineItems, s.dayMultiplier, s.gstEnabled);
+    const totals = {
+      ...totalsRaw, subtotalFormatted: fmt(totalsRaw.subtotal), fullSubtotalFormatted: fmt(totalsRaw.fullSubtotal),
+      discountFormatted: fmt(totalsRaw.discount), gstFormatted: fmt(totalsRaw.gst), totalFormatted: fmt(totalsRaw.total),
+      discountPct: Math.round((1 - s.dayMultiplier) * 100),
+    };
+
+    const presets = this.presetsResolved().map(p => ({ label: p.label, load: () => this.loadPreset(p.items) }));
+
+    const historyRows = s.quotes.map(q => ({
+      ...q, totalFormatted: fmt(q.total),
+      open: () => this.openQuote(q),
+      remove: () => this.deleteQuote(q.id),
+    }));
+
+    const catalogueGroups = CATEGORY_ORDER.map(cat => {
+      const [bg, color] = CATEGORY_COLORS[cat];
+      const items = s.catalogue.filter(c => c.category === cat).map(item => ({
+        ...item, rowOpacity: item.active ? '1' : '0.4', toggleLabel: item.active ? 'Archive' : 'Restore',
+        setName: (e) => this.persistCatalogue(s.catalogue.map(c => c.id === item.id ? { ...c, name: e.target.value } : c)),
+        setRate: (e) => this.persistCatalogue(s.catalogue.map(c => c.id === item.id ? { ...c, rate: Number(e.target.value) } : c)),
+        setUnit: (e) => this.persistCatalogue(s.catalogue.map(c => c.id === item.id ? { ...c, unit: e.target.value } : c)),
+        toggleActive: () => this.persistCatalogue(s.catalogue.map(c => c.id === item.id ? { ...c, active: c.active ? 0 : 1 } : c)),
+        remove: () => this.persistCatalogue(s.catalogue.filter(c => c.id !== item.id)),
+      }));
+      return {
+        label: cat.charAt(0).toUpperCase() + cat.slice(1), color, items,
+        addItem: () => {
+          const nextId = Math.max(0, ...s.catalogue.map(c => c.id)) + 1;
+          this.persistCatalogue([...s.catalogue, { id: nextId, category: cat, name: 'New item', rate: 0, unit: 'day', active: 1 }]);
+        },
+      };
+    });
+
+    return {
+      isBuilder: s.view === 'builder', isHistory: s.view === 'history', isCatalogue: s.view === 'catalogue',
+      goBuilder: () => this.setState({ view: 'builder' }), goHistory: () => this.setState({ view: 'history' }), goCatalogue: () => this.setState({ view: 'catalogue' }),
+      tabBuilderBg: s.view === 'builder' ? '#111827' : 'transparent', tabBuilderColor: s.view === 'builder' ? '#fff' : '#6b7280',
+      tabHistoryBg: s.view === 'history' ? '#111827' : 'transparent', tabHistoryColor: s.view === 'history' ? '#fff' : '#6b7280',
+      tabCatalogueBg: s.view === 'catalogue' ? '#111827' : 'transparent', tabCatalogueColor: s.view === 'catalogue' ? '#fff' : '#6b7280',
+
+      clientName: s.clientName, projectName: s.projectName, quoteRef: s.quoteRef, quoteDate: s.quoteDate,
+      setClientName: (e) => this.setState({ clientName: e.target.value }),
+      setProjectName: (e) => this.setState({ projectName: e.target.value }),
+      setQuoteRef: (e) => this.setState({ quoteRef: e.target.value }),
+      setQuoteDate: (e) => this.setState({ quoteDate: e.target.value }),
+
+      presets,
+      categoryOptions: CATEGORY_ORDER.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) })),
+      selectedCategory: s.selectedCategory, setSelectedCategory: (e) => this.setState({ selectedCategory: e.target.value, selectedItemId: '' }),
+      filteredItems, selectedItemId: s.selectedItemId, setSelectedItemId: (e) => this.setState({ selectedItemId: e.target.value }),
+      addItem: () => this.addItem(), addCustomRow: () => this.addCustomRow(),
+      addDisabled: !s.selectedItemId, addOpacity: s.selectedItemId ? '1' : '0.4',
+
+      hasLineItems: s.lineItems.length > 0, lineItems,
+      dayMultiplier: String(s.dayMultiplier), setDayMultiplier: (e) => this.setState({ dayMultiplier: Number(e.target.value) }),
+      gstEnabled: s.gstEnabled, setGstEnabled: (e) => this.setState({ gstEnabled: e.target.checked }),
+      notes: s.notes, setNotes: (e) => this.setState({ notes: e.target.value }),
+      saveLabel: s.savedId ? 'Update Quote' : 'Save Quote', saveQuote: () => this.saveQuote(),
+      hasSavedId: !!s.savedId, duplicateQuote: () => this.duplicateQuote(), exportPdf: () => this.exportPdf(),
+      totals, hasDiscount: totalsRaw.discount > 0, hasGst: totalsRaw.gst > 0,
+
+      hasQuotes: s.quotes.length > 0, hasNoQuotes: s.quotes.length === 0, historyRows,
+
+      business: s.business,
+      setBusinessName: (e) => this.persistBusiness({ ...s.business, name: e.target.value }),
+      setBusinessAbn: (e) => this.persistBusiness({ ...s.business, abn: e.target.value }),
+      setBusinessEmail: (e) => this.persistBusiness({ ...s.business, email: e.target.value }),
+      setBusinessPhone: (e) => this.persistBusiness({ ...s.business, phone: e.target.value }),
+      catalogueGroups,
+    };
+  }
+}
+</script>
+</body>
+</html>
