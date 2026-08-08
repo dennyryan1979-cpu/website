@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;family=Spline+Sans+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
-<script src="image-slot.js"></script>
 <style>
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -114,26 +113,26 @@
           <img src="https://images.squarespace-cdn.com/content/v1/68e30a7237cde73ad44d2de9/8fec7b62-6725-4fb1-8d2e-fd711f0e5396/DSC01014.JPG" alt="" style="width:100%; height:100%; object-fit:cover; filter:saturate(0.9);">
         </div>
       </figure>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 5; display:flex; cursor:pointer;">
-        <image-slot id="dr-photo-1" style="width:100%; height:100%; aspect-ratio:auto;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto1 }}" style="grid-column:span 5; display:flex; cursor:pointer;">
+        <img id="dr-photo-1" src="uploads/DSC00257.JPG" alt="" style="width:100%; height:100%; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-2" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto2 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-2" src="uploads/DSC00263.JPG" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-3" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto3 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-3" src="uploads/DSC02648.jpg" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-4" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto4 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-4" src="uploads/DSC03638.jpg" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-5" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto5 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-5" src="uploads/IMG_6996.JPG" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-6" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto6 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-6" src="uploads/DSC03671.jpg" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
-      <div onClick="{{ openSlotPhoto }}" style="grid-column:span 4; cursor:pointer;">
-        <image-slot id="dr-photo-7" style="width:100%; aspect-ratio:4/5;" shape="rect" placeholder="Drop a photograph"></image-slot>
+      <div onClick="{{ openPhoto7 }}" style="grid-column:span 4; cursor:pointer;">
+        <img id="dr-photo-7" src="uploads/dublin.jpg" alt="" style="width:100%; aspect-ratio:4/5; object-fit:cover; border:1px solid #002FA7;">
       </div>
     </div>
   </section>
@@ -242,9 +241,8 @@ class Component extends DCLogic {
     const staticImg = document.querySelector('#photography figure img');
     if (staticImg && staticImg.src) list.push(staticImg.src);
     ['dr-photo-1','dr-photo-2','dr-photo-3','dr-photo-4','dr-photo-5','dr-photo-6','dr-photo-7'].forEach((id) => {
-      const slot = document.getElementById(id);
-      const img = slot && slot.shadowRoot && slot.shadowRoot.querySelector('.frame img');
-      if (img && img.style.display !== 'none' && img.src) list.push(img.src);
+      const img = document.getElementById(id);
+      if (img && img.src) list.push(img.src);
     });
     return list;
   }
@@ -332,11 +330,13 @@ class Component extends DCLogic {
       prevPhoto: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.stepPhoto(-1); },
       nextPhoto: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.stepPhoto(1); },
       openStillPhoto: () => this.openPhoto('https://images.squarespace-cdn.com/content/v1/68e30a7237cde73ad44d2de9/8fec7b62-6725-4fb1-8d2e-fd711f0e5396/DSC01014.JPG'),
-      openSlotPhoto: (e) => {
-        const slot = e.currentTarget.querySelector('image-slot');
-        const img = slot && slot.shadowRoot && slot.shadowRoot.querySelector('.frame img');
-        if (img && img.style.display !== 'none' && img.src) this.openPhoto(img.src);
-      },
+      openPhoto1: () => this.openPhoto(document.getElementById('dr-photo-1').src),
+      openPhoto2: () => this.openPhoto(document.getElementById('dr-photo-2').src),
+      openPhoto3: () => this.openPhoto(document.getElementById('dr-photo-3').src),
+      openPhoto4: () => this.openPhoto(document.getElementById('dr-photo-4').src),
+      openPhoto5: () => this.openPhoto(document.getElementById('dr-photo-5').src),
+      openPhoto6: () => this.openPhoto(document.getElementById('dr-photo-6').src),
+      openPhoto7: () => this.openPhoto(document.getElementById('dr-photo-7').src),
       onImgError: (e) => {
         const t = e.target;
         if (!t.dataset.fb) { t.dataset.fb = '1'; t.src = t.src.replace('maxresdefault', 'hqdefault'); }
